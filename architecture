@@ -1,0 +1,3 @@
+s1: make a web request to the C2 server to retrieve S2 shellcode, and then execute it, and delete itself off the disk
+s2: process inject s3 into a new instance of windows explorer
+s3: reach out to the C2 server and then execute the response as a powershell command

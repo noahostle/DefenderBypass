@@ -6,11 +6,12 @@ const port = 3000;
 const shellcodeDir = path.join(__dirname, '../shellcode/loaders');
 
 function sendFileContents(filePath, res) {
-  fs.readFile(filePath, 'utf8', (err, data) => {
+  fs.readFile(filePath, (err, data) => {
     if (err) {
       res.status(500).send('Error reading file');
     } else {
-      res.send(data);
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.send(data);
     }
   });
 }
@@ -20,6 +21,7 @@ function sendFileContents(filePath, res) {
 
 
 app.get('/MessageBoxShellcode', (req, res) => {
+  console.log("[+] Request to '/MessageBoxShellcode'");
   const filePath = path.join(shellcodeDir, 'msg.bin');
   sendFileContents(filePath, res);
 });

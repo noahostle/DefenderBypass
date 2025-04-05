@@ -28,4 +28,3 @@ clean:
 # All target (build all executables)
 all: $(TARGET1) $(TARGET2)
 test: $(TARGET1) $(TARGETt)
-

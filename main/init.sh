@@ -11,7 +11,7 @@ cleanup() {
 echo -e "\n[+] Cleaning up...\n"
 make -s -C src clean
 rm loader.bin 2> /dev/null
-rm /shellcode/loaders/* -f 2> /dev/null
+rm shellcode/loaders/* -f 2> /dev/null
 }
 trap cleanup SIGINT
 
@@ -28,7 +28,7 @@ fi
 echo -e "[+] Done!\n"
 
 echo -e "[/] Compiling executables..."
-make -s -C src "test"
+make -s -C src all
 echo -e "[+] Done!\n"
 
 echo -e "[/] Generating shellcode..."

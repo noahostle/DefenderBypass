@@ -20,9 +20,9 @@ function sendFileContents(filePath, res) {
 
 
 
-app.get('/MessageBoxShellcode', (req, res) => {
-  console.log("[+] Request to '/MessageBoxShellcode'");
-  const filePath = path.join(shellcodeDir, 'msg.bin');
+app.get('/S2Shellcode', (req, res) => {
+  console.log("[+] Request to '/S2Shellcode'");
+  const filePath = path.join(shellcodeDir, 's2.bin');
   sendFileContents(filePath, res);
 });
 

@@ -19,7 +19,7 @@ $(TARGET2): $(STAGER2)
 	$(CC) $(STAGER2) -o $(DIR)$(TARGET2)
 
 $(TARGETt): $(testing)
-	$(CC) $(testing) -o $(DIR)$(TARGETt)
+	$(CC) $(testing) -o $(DIR)$(TARGET2)
 
 # Clean up the generated files
 clean:

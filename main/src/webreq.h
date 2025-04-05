@@ -1,6 +1,6 @@
 #ifndef WEBREQ_H
 #define WEBREQ_H
 
-char* fetch_url(const char* url);
+void fetch_url(const char* url, unsigned char* response, size_t* responseSize);
 
 #endif

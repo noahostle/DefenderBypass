@@ -1,3 +1,20 @@
-s1: make a web request to the C2 server to retrieve S2 shellcode, and then execute it, and delete itself off the disk
-s2: process inject s3 into a new instance of windows explorer
-s3: reach out to the C2 server and then execute the response as a powershell command
+s1: A portable executable stager which reaches out to a C2 (command and control) server, and downloads the second stage (s2) into an byte buffer, then executes it as shellcode (in the current programs memory)
+
+payload: The final payload of the malware. This can be anything, even highly signatured shellcodes from msfvenom, due to the obfuscation methods employed in this technique. (Formatted as C style unsigned char buffer). 
+
+s2: A file that contains the final shellcode, and uses process injection to start a new explorer.exe instance, and inject the payload into it. Compiled to a portable executable, then converted to Position Independent shellCode
+Using Donut-shellcode.
+
+
+
+Technique flow:
+
+- The attacker uses ./init.sh to generate / compile all required files, and start the C2 server, Exposing s1.exe and s2 (as bytes).
+- The victim by some function is persauded to download s1.exe. This is the only file that will ever touch the disk.
+- Once the victim runs s1.exe, it will reach out to the C2 server and retrieve the second stage, s2, executing it as shellcode.
+- s2 then injects the shellcode into a new explorer.exe instance, it is crucial to note s2 and final shellcode are never stored on disk, only as char buffers in program memory.
+
+While this technique does make use of several win32API functions that can be hooked by more advanced EDR software, it is argued that due to Windows Defenders reliance on signaturing and
+disk scanning, web based payload execution in this nature is not detectable by Defender under its current scanning paradigm. Therefore there is a class of malware which Defender is not 
+capable of providing sufficient defensive measures against. This is worsened by the fact that remote access malware (as seen in the example) usually targets individuals or personal computers,
+which is most likely where you are to find a single installation of Windows Defender unaccompanied by any other Anti-Malware measures.

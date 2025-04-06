@@ -27,6 +27,13 @@ if [ ! -d C2server/node_modules ]; then
 fi
 echo -e "[+] Done!\n"
 
+echo -e '[+] Note: shellcode file must be in format;\n    unsigned char buf[] = "\\x90\\x90 ... ";\n'
+echo "[?] Enter the path to your shellcode : "
+read fp
+cat src/s2Head $fp src/s2Tail > src/s2.c
+echo -e "[+] Executables generated!\n"
+
+
 echo -e "[/] Compiling executables..."
 make -s -C src all
 echo -e "[+] Done!\n"

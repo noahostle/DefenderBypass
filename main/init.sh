@@ -5,7 +5,8 @@
 #               convert them to shellcode using donut, start the node C2
 #               server, and present you with the stager executable.
 
-
+mkdir shellcode/loaders
+mkdir shellcode/executables
 
 cleanup() {
 echo -e "\n[+] Cleaning up...\n"
